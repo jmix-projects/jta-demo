@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://jmix.io/schema/ui/menu">
+
+    <menu id="application" caption="msg://com.company.jtatest/menu.application" insertBefore="administration">
+        <item screen="jtat_User.browse" caption="msg://com.company.jtatest.screen.user/UserBrowse.caption"/>
+        <item screen="sample_Order.browse" caption="msg://com.company.jtatest.screen.order/orderBrowse.caption"/>
+        <item screen="sample_Customer.browse"
+              caption="msg://com.company.jtatest.screen.customer/customerBrowse.caption"/>
+        <item screen="jtat_LocalEntity.browse"
+              caption="msg://com.company.jtatest.screen.localentity/localEntityBrowse.caption"/>
+    </menu>
+
+</menu-config>

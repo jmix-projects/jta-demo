@@ -1,0 +1,61 @@
+plugins {
+    id 'io.jmix' version '0.9.2'
+    id 'java'
+}
+
+apply plugin: 'org.springframework.boot'
+
+task showClasspath  {
+    doLast {
+        buildscript.configurations.classpath.each { println it.name }
+    }
+}
+
+jmix {
+    bomVersion = '1.0.0-SNAPSHOT'
+    projectId = 'jtat'
+}
+
+group = 'com.company'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenLocal()
+    mavenCentral() 
+    maven {
+        url 'https://global.repo.jmix.io/repository/public'
+    }
+    maven {
+        url 'https://nexus.jmix.io/repository/public'
+    }
+}
+
+task run{
+}
+
+dependencies {
+    implementation 'io.jmix.core:jmix-core-starter'
+    implementation 'io.jmix.data:jmix-eclipselink-starter'
+    implementation 'io.jmix.ui:jmix-ui-starter'
+    implementation 'io.jmix.ui:jmix-ui-data-starter'
+    implementation 'io.jmix.ui:jmix-ui-themes-compiled'
+    implementation 'io.jmix.ui:jmix-ui-widgets-compiled'
+    implementation 'io.jmix.security:jmix-security-starter'
+    implementation 'io.jmix.security:jmix-security-ui-starter'
+    implementation 'io.jmix.security:jmix-security-data-starter'
+    implementation 'io.jmix.localfs:jmix-localfs-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-jta-atomikos:2.3.1.RELEASE'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    implementation 'org.postgresql:postgresql'
+}
+
+test {
+    useJUnitPlatform()
+}
