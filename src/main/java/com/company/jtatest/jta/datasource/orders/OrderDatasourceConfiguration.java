@@ -1,6 +1,5 @@
 package com.company.jtatest.jta.datasource.orders;
 
-import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.company.jtatest.jta.AtomikosServerPlatform;
 import io.jmix.autoconfigure.data.JmixLiquibaseCreator;
 import io.jmix.core.JmixModules;
@@ -13,10 +12,10 @@ import org.postgresql.xa.PGXADataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
+import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.orm.jpa.JpaDialect;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
@@ -52,8 +51,7 @@ public class OrderDatasourceConfiguration {
                                                                              JpaVendorAdapter jpaVendorAdapter,
                                                                              DbmsSpecifics dbmsSpecifics,
                                                                              JmixModules jmixModules,
-                                                                             Resources resources,
-                                                                             JpaDialect dialect) throws Throwable {
+                                                                             Resources resources) {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put("eclipselink.target-server", AtomikosServerPlatform.class.getName());
@@ -61,7 +59,6 @@ public class OrderDatasourceConfiguration {
 
         LocalContainerEntityManagerFactoryBean entityManager =
                 new JmixEntityManagerFactoryBean("orders", ordersDataSource, jpaVendorAdapter, dbmsSpecifics, jmixModules, resources);
-        entityManager.setJpaDialect(dialect);
         entityManager.setJtaDataSource(ordersDataSource);
         entityManager.setJpaPropertyMap(properties);
         return entityManager;

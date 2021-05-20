@@ -1,6 +1,7 @@
 package com.company.jtatest.screen.login;
 
 import io.jmix.core.CoreProperties;
+import io.jmix.core.MessageTools;
 import io.jmix.core.Messages;
 import io.jmix.securityui.authentication.AuthDetails;
 import io.jmix.securityui.authentication.LoginScreenAuthenticationSupport;
@@ -48,6 +49,9 @@ public class LoginScreen extends Screen {
     @Autowired
     private CoreProperties coreProperties;
 
+    @Autowired
+    private MessageTools messageTools;
+
     @Subscribe
     private void onInit(InitEvent event) {
         usernameField.focus();
@@ -56,8 +60,8 @@ public class LoginScreen extends Screen {
     }
 
     private void initLocalesField() {
-        localesField.setOptionsMap(coreProperties.getAvailableLocales());
-        localesField.setValue(coreProperties.getAvailableLocales().values().iterator().next());
+        localesField.setOptionsMap(messageTools.getAvailableLocalesMap());
+        localesField.setValue(coreProperties.getAvailableLocales().iterator().next());
     }
 
     private void initDefaultCredentials() {

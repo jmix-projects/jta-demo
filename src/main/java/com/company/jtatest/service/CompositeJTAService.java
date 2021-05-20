@@ -27,7 +27,7 @@ public class CompositeJTAService {
     public void updateCustomerAndOrder(Order order) {
         Customer customer = customersService.updateCustomerById(order.getCustomerId());
         Order updatedOrder = ordersService.saveOrder(order);
-        logger.info(customer+" "+order);
+        logger.info(customer + " " + order);
         if (updatedOrder.getNumber().contains("8")) {
             throw new RuntimeException("Test Exception");
         }

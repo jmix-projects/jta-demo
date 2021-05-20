@@ -25,7 +25,6 @@ public class OrderBrowse extends StandardLookup<Order> {
     @Inject
     OrdersService ordersService;
 
-
     @Inject
     CollectionContainer<Order> ordersDc;
 
@@ -49,15 +48,15 @@ public class OrderBrowse extends StandardLookup<Order> {
         Order o = dataManager.create(Order.class);
         Customer c = dataManager.create(Customer.class);
         LocalEntity l = dataManager.create(LocalEntity.class);
-        c.setName("TestCreatedName-C");
-        c.setEmail("somemail@somemail.somemail");
-        o.setNumber("2");
+        c.setName("Customer created");
+        c.setEmail("-");
+        o.setNumber("1");
         o.setCustomer(c);
-        l.setName("LocEn-1");
+        l.setName("LocalEntity created");
         SaveContext sc = new SaveContext();
         sc.saving(c, o, l);
         sc.setJoinTransaction(true);
-        EntitySet entities = dataManager.save(sc);
+        dataManager.save(sc);
         ordersDl.load();
     }
 

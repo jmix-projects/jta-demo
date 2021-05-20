@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
-import org.springframework.orm.jpa.JpaDialect;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
@@ -45,8 +44,7 @@ public class MainDatasourceConfiguration {
                                                                 JpaVendorAdapter jpaVendorAdapter,
                                                                 DbmsSpecifics dbmsSpecifics,
                                                                 JmixModules jmixModules,
-                                                                Resources resources,
-                                                                JpaDialect dialect) throws Throwable {
+                                                                Resources resources) {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put("eclipselink.target-server", AtomikosServerPlatform.class.getName());
@@ -54,7 +52,6 @@ public class MainDatasourceConfiguration {
 
         LocalContainerEntityManagerFactoryBean entityManager =
                 new JmixEntityManagerFactoryBean("main", dataSource, jpaVendorAdapter, dbmsSpecifics, jmixModules, resources);
-        entityManager.setJpaDialect(dialect);
         entityManager.setJtaDataSource(dataSource);
         entityManager.setJpaPropertyMap(properties);
         return entityManager;
