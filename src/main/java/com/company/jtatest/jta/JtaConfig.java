@@ -30,21 +30,18 @@ public class JtaConfig {
     }
 
     @Bean(name = "atomikosTransactionManager", initMethod = "init", destroyMethod = "close")
-    public TransactionManager atomikosTransactionManager() throws Throwable {
+    public TransactionManager atomikosTransactionManager() {
         UserTransactionManager userTransactionManager = new UserTransactionManager();
         userTransactionManager.setForceShutdown(false);
         return userTransactionManager;
     }
 
-    @Bean(name = {"transactionManager", /*"mainTransactionManager",*/ "ordersTransactionManager"})
+    @Bean(name = {"transactionManager", "ordersTransactionManager"})
     @DependsOn({ "userTransaction", "atomikosTransactionManager" })
     public PlatformTransactionManager transactionManager() throws Throwable {
         UserTransaction userTransaction = userTransaction();
         TransactionManager atomikosTransactionManager = atomikosTransactionManager();
-        Set<String> allowedStores = new HashSet<>();
-        allowedStores.add("main");
-        allowedStores.add("orders");
-        return new JmixEclipselinkJtaTransactionManager("mainTransactionManager", allowedStores, userTransaction, atomikosTransactionManager);
+        return new JmixEclipselinkJtaTransactionManager("transactionManager", userTransaction, atomikosTransactionManager);
     }
 
 }
