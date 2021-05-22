@@ -2,7 +2,7 @@ package com.company.jtatest.jta;
 
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
-import io.jmix.data.impl.JmixJtaTransactionManager;
+import io.jmix.data.impl.jta.JmixJtaTransactionController;
 import io.jmix.eclipselink.impl.JmixEclipselinkJtaTransactionManager;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -10,17 +10,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.jta.JtaTransactionManager;
 
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
-import java.util.HashSet;
-import java.util.Set;
 
 @Configuration
 @EnableConfigurationProperties
 @EnableTransactionManagement
 public class JtaConfig {
+
+    @Bean
+    JmixJtaTransactionController jtaTransactionController() {
+        return new JmixJtaTransactionController();
+    }
 
     @Bean(name = "userTransaction")
     public UserTransaction userTransaction() throws Throwable {
@@ -37,7 +39,7 @@ public class JtaConfig {
     }
 
     @Bean(name = {"transactionManager", "ordersTransactionManager"})
-    @DependsOn({ "userTransaction", "atomikosTransactionManager" })
+    @DependsOn({"userTransaction", "atomikosTransactionManager"})
     public PlatformTransactionManager transactionManager() throws Throwable {
         UserTransaction userTransaction = userTransaction();
         TransactionManager atomikosTransactionManager = atomikosTransactionManager();

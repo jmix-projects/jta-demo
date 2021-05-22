@@ -1,10 +1,9 @@
 package com.company.jtatest.jta.datasource.customers;
 
 import com.atomikos.jdbc.AtomikosDataSourceBean;
-import com.company.jtatest.jta.AtomikosServerPlatform;
 import io.jmix.core.JmixModules;
 import io.jmix.core.Resources;
-import io.jmix.data.impl.JmixEntityManagerFactoryBean;
+import io.jmix.data.impl.JmixJtaEntityManagerFactoryBean;
 import io.jmix.data.persistence.DbmsSpecifics;
 import org.postgresql.xa.PGXADataSource;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +14,6 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @DependsOn("transactionManager")
@@ -46,15 +43,13 @@ public class MainDatasourceConfiguration {
                                                                 JmixModules jmixModules,
                                                                 Resources resources) {
 
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("eclipselink.target-server", AtomikosServerPlatform.class.getName());
-        properties.put("javax.persistence.transactionType", "JTA");
 
-        LocalContainerEntityManagerFactoryBean entityManager =
-                new JmixEntityManagerFactoryBean("main", dataSource, jpaVendorAdapter, dbmsSpecifics, jmixModules, resources);
-        entityManager.setJtaDataSource(dataSource);
-        entityManager.setJpaPropertyMap(properties);
-        return entityManager;
+        return new JmixJtaEntityManagerFactoryBean("main",
+                dataSource,
+                jpaVendorAdapter,
+                dbmsSpecifics,
+                jmixModules,
+                resources);
     }
 
 

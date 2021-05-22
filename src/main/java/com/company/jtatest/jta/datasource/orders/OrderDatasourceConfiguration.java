@@ -1,10 +1,9 @@
 package com.company.jtatest.jta.datasource.orders;
 
-import com.company.jtatest.jta.AtomikosServerPlatform;
 import io.jmix.autoconfigure.data.JmixLiquibaseCreator;
 import io.jmix.core.JmixModules;
 import io.jmix.core.Resources;
-import io.jmix.data.impl.JmixEntityManagerFactoryBean;
+import io.jmix.data.impl.JmixJtaEntityManagerFactoryBean;
 import io.jmix.data.impl.liquibase.LiquibaseChangeLogProcessor;
 import io.jmix.data.persistence.DbmsSpecifics;
 import liquibase.integration.spring.SpringLiquibase;
@@ -20,8 +19,6 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @DependsOn("ordersTransactionManager")
@@ -52,16 +49,12 @@ public class OrderDatasourceConfiguration {
                                                                              DbmsSpecifics dbmsSpecifics,
                                                                              JmixModules jmixModules,
                                                                              Resources resources) {
-
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("eclipselink.target-server", AtomikosServerPlatform.class.getName());
-        properties.put("javax.persistence.transactionType", "JTA");
-
-        LocalContainerEntityManagerFactoryBean entityManager =
-                new JmixEntityManagerFactoryBean("orders", ordersDataSource, jpaVendorAdapter, dbmsSpecifics, jmixModules, resources);
-        entityManager.setJtaDataSource(ordersDataSource);
-        entityManager.setJpaPropertyMap(properties);
-        return entityManager;
+        return new JmixJtaEntityManagerFactoryBean("orders",
+                ordersDataSource,
+                jpaVendorAdapter,
+                dbmsSpecifics,
+                jmixModules,
+                resources);
     }
 
     @Bean

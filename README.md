@@ -7,6 +7,13 @@ Simple Jmix application able to use distributed transactions with Atomikos.
 
 ## Set up transaction manager
 
+- Create JmixJtaTransactionController bean
+```
+@Bean
+    JmixJtaTransactionController jtaTransactionController() {
+        return new JmixJtaTransactionController();
+    }
+```
 - Create UserTransaction and AtomikosTransactionManager beans
 ```
     @Bean(name = "userTransaction")
@@ -53,7 +60,7 @@ Note that this bean must have a name for each datastore you want to use with it 
     }
 ```
 
-- Create EntityManagerFactory bean using JmixEntityManagerFactoryBean and set JTA DataSource for it
+- Create EntityManagerFactory bean using JmixJtaEntityManagerFactoryBean and set JTA DataSource for it
 ```
     @Bean
     @DependsOn({"ordersTransactionManager", "ordersDataSource"})
@@ -62,15 +69,11 @@ Note that this bean must have a name for each datastore you want to use with it 
                                                                              DbmsSpecifics dbmsSpecifics,
                                                                              JmixModules jmixModules,
                                                                              Resources resources) {
-
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("eclipselink.target-server", AtomikosServerPlatform.class.getName());
-        properties.put("javax.persistence.transactionType", "JTA");
-
-        LocalContainerEntityManagerFactoryBean entityManager =
-                new JmixEntityManagerFactoryBean("orders", ordersDataSource, jpaVendorAdapter, dbmsSpecifics, jmixModules, resources);
-        entityManager.setJtaDataSource(ordersDataSource);
-        entityManager.setJpaPropertyMap(properties);
-        return entityManager;
+        return new JmixJtaEntityManagerFactoryBean("orders",
+                ordersDataSource,
+                jpaVendorAdapter,
+                dbmsSpecifics,
+                jmixModules,
+                resources);
     }
 ```
