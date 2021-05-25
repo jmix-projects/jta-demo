@@ -59,7 +59,6 @@ public class Order {
     @Transient
     @JmixProperty
     @DependsOnProperties("customerId")
-    //@ModelProperty(related = "customerId", mandatory = true)
     private Customer customer;
 
     public Customer getCustomer() {

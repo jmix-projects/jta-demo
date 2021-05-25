@@ -77,3 +77,10 @@ Note that this bean must have a name for each datastore you want to use with it 
                 resources);
     }
 ```
+
+##Notes
+There are 3 data stores in the project. "Main" data store and "orders" store belong to global transaction manager. "Main" store manages `Customer` and `User` entities. Data store "orders" manages "Order" entity. Third data store "local" does not belong to the global transaction manager and manages `LocalEntity` entity.
+
+Note that database you are using must be able to work with `XADataSource`. For example, if you use `Postgres` you should set `max_prepared_transactions` property to a nonzero value.
+
+Project also has a basic test with successful transaction and rollback. To run it, it is better to set connection parameters to test databases in the test app properties, since some tables are cleared during tests.
