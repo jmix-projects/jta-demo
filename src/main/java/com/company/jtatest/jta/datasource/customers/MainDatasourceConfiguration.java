@@ -6,6 +6,10 @@ import io.jmix.core.Resources;
 import io.jmix.data.impl.JmixJtaEntityManagerFactoryBean;
 import io.jmix.data.persistence.DbmsSpecifics;
 import org.postgresql.xa.PGXADataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -21,16 +25,24 @@ public class MainDatasourceConfiguration {
 
     @Bean
     @Primary
-    public DataSource dataSource(MainDatasourceProperties dsConfig) {
+    @ConfigurationProperties("main.datasource")
+    DataSourceProperties dataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean
+    @Primary
+    public DataSource dataSource(@Qualifier("dataSourceProperties") DataSourceProperties dataSourceProperties) {
         PGXADataSource ds = new PGXADataSource();
-        ds.setURL(dsConfig.getJdbcUrl());
-        ds.setUser(dsConfig.getUsername());
-        ds.setPassword(dsConfig.getPassword());
+        ds.setURL(dataSourceProperties.getUrl());
+        ds.setUser(dataSourceProperties.getUsername());
+        ds.setPassword(dataSourceProperties.getPassword());
 
         AtomikosDataSourceBean atomikosDataSourceBean = new AtomikosDataSourceBean();
         atomikosDataSourceBean.setUniqueResourceName("cubaXADs/main");
         atomikosDataSourceBean.setXaDataSource(ds);
         atomikosDataSourceBean.setMaxPoolSize(100);
+
         return atomikosDataSourceBean;
     }
 
@@ -51,6 +63,4 @@ public class MainDatasourceConfiguration {
                 jmixModules,
                 resources);
     }
-
-
 }

@@ -9,6 +9,7 @@ import io.jmix.data.impl.liquibase.LiquibaseChangeLogProcessor;
 import io.jmix.data.persistence.DbmsSpecifics;
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -25,14 +26,23 @@ import javax.sql.DataSource;
 public class LocalStoreConfiguration {
 
     @Bean
-    @ConfigurationProperties(prefix = "local.datasource")
-    DataSource localDataSource() {
-        return DataSourceBuilder.create().build();
+    @ConfigurationProperties("local.datasource")
+    DataSourceProperties localDataSourceProperties() {
+        return new DataSourceProperties();
     }
 
     @Bean
-    LocalContainerEntityManagerFactoryBean localEntityManagerFactory(JpaVendorAdapter jpaVendorAdapter, DbmsSpecifics dbmsSpecifics, JmixModules jmixModules, Resources resources) {
-        return new JmixEntityManagerFactoryBean("local", localDataSource(), jpaVendorAdapter, dbmsSpecifics, jmixModules, resources);
+    DataSource localDataSource(@Qualifier("localDataSourceProperties") DataSourceProperties dataSourceProperties) {
+        return dataSourceProperties.initializeDataSourceBuilder().build();
+    }
+
+    @Bean
+    LocalContainerEntityManagerFactoryBean localEntityManagerFactory(@Qualifier("localDataSource") DataSource dataSource,
+                                                                     JpaVendorAdapter jpaVendorAdapter,
+                                                                     DbmsSpecifics dbmsSpecifics,
+                                                                     JmixModules jmixModules,
+                                                                     Resources resources) {
+        return new JmixEntityManagerFactoryBean("local", dataSource, jpaVendorAdapter, dbmsSpecifics, jmixModules, resources);
     }
 
     @Bean
@@ -41,7 +51,7 @@ public class LocalStoreConfiguration {
     }
 
     @Bean
-    public SpringLiquibase localLiquibase(LiquibaseChangeLogProcessor processor) {
-        return JmixLiquibaseCreator.create(localDataSource(), new LiquibaseProperties(), processor, "local");
+    public SpringLiquibase localLiquibase(@Qualifier("localDataSource") DataSource dataSource, LiquibaseChangeLogProcessor processor) {
+        return JmixLiquibaseCreator.create(dataSource, new LiquibaseProperties(), processor, "local");
     }
 }
