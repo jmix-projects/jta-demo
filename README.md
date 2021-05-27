@@ -84,3 +84,5 @@ There are 3 data stores in the project. "Main" data store and "orders" store bel
 Note that database you are using must be able to work with `XADataSource`. For example, if you use `Postgres` you should set `max_prepared_transactions` property to a nonzero value.
 
 Project also has a basic test with successful transaction and rollback. To run it, it is better to set connection parameters to test databases in the test app properties, since some tables are cleared during tests.
+
+There are two special buttons on the Order browser screen. The "Create test order and customer" button creates programmatically the Order entity, Customer entity and LocalEntity entity then saves them in same SaveContext via dataManager. Button "Invoke Distributed Transaction Service" executes the CompositeJTAService service for selected in table Order instance and associated Customer, where you can see an example of declarative use of transactions.
