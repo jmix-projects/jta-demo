@@ -38,7 +38,7 @@ public class JtaConfig {
         return userTransactionManager;
     }
 
-    @Bean(name = {"transactionManager", "ordersTransactionManager"})
+    @Bean(name = {"transactionManager", "ordersTransactionManager", "jmsTransactionManager"})
     @DependsOn({"userTransaction", "atomikosTransactionManager"})
     public PlatformTransactionManager transactionManager() throws Throwable {
         UserTransaction userTransaction = userTransaction();

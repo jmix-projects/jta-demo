@@ -46,6 +46,7 @@ dependencies {
     implementation 'io.jmix.security:jmix-security-data-starter'
     implementation 'io.jmix.localfs:jmix-localfs-starter'
     implementation 'org.springframework.boot:spring-boot-starter-jta-atomikos'
+    implementation 'org.springframework.boot:spring-boot-starter-activemq'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
 

@@ -11,10 +11,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -27,9 +32,12 @@ public class GlobalTxTest {
     Metadata metadata;
     @Autowired
     UnsafeDataManager dataManager;
+    @Autowired
+    JmsTemplate jmsTemplate;
 
     @Test
     void successfulCommitTest() {
+        String testMsg = "Test message";
         AtomicLong customerId = new AtomicLong();
         AtomicLong orderId = new AtomicLong();
         mainTransaction().executeWithoutResult(tsM -> {
@@ -38,17 +46,28 @@ public class GlobalTxTest {
             ordersTransaction().executeWithoutResult(tsO -> {
                 orderId.set(createOrder(customer).getId());
             });
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("testMsg", testMsg);
+            jmsTemplate.convertAndSend(msg);
         });
 
         Customer loadedCustomer = dataManager.load(Customer.class).id(customerId.get()).one();
         Order loadedOrder = dataManager.load(Order.class).id(orderId.get()).one();
 
+        AtomicReference<Map<String, Object>> msg = new AtomicReference<>();
+        mainTransaction().executeWithoutResult(tsM ->
+                msg.set((Map<String, Object>) jmsTemplate.receiveAndConvert())
+        );
+
+        Assert.notNull(msg.get(), "Test message is null");
+        assertThat(msg.get().get("testMsg")).isEqualTo(testMsg);
         assertThat(loadedCustomer.getId()).isEqualTo(customerId.get());
         assertThat(loadedOrder.getId()).isEqualTo(orderId.get());
     }
 
     @Test
     void rollbackTest() {
+        String testMsg = "Test message";
         AtomicLong customerId = new AtomicLong();
         AtomicLong orderId = new AtomicLong();
         try {
@@ -58,12 +77,21 @@ public class GlobalTxTest {
                 ordersTransaction().executeWithoutResult(tsO -> {
                     orderId.set(createOrder(customer).getId());
                 });
+                Map<String, Object> msg = new HashMap<>();
+                msg.put("testMsg", testMsg);
+                jmsTemplate.convertAndSend(msg);
                 throw new RuntimeException("Transaction rollback exception");
             });
         } catch (RuntimeException e) {
             // Catch thrown exception
         }
 
+        AtomicReference<Map<String, Object>> msg = new AtomicReference<>();
+        mainTransaction().executeWithoutResult(tsM ->
+                msg.set((Map<String, Object>) jmsTemplate.receiveAndConvert())
+        );
+
+        Assert.isNull(msg.get(), "Test message received");
         assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() ->
                 dataManager.load(Customer.class).id(customerId.get()).one()
         );
