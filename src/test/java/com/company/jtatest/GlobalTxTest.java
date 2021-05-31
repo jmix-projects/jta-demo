@@ -46,16 +46,18 @@ public class GlobalTxTest {
             ordersTransaction().executeWithoutResult(tsO -> {
                 orderId.set(createOrder(customer).getId());
             });
-            Map<String, Object> msg = new HashMap<>();
-            msg.put("testMsg", testMsg);
-            jmsTemplate.convertAndSend(msg);
+            jmsTransaction().executeWithoutResult(tsJms -> {
+                Map<String, Object> msg = new HashMap<>();
+                msg.put("testMsg", testMsg);
+                jmsTemplate.convertAndSend(msg);
+            });
         });
 
         Customer loadedCustomer = dataManager.load(Customer.class).id(customerId.get()).one();
         Order loadedOrder = dataManager.load(Order.class).id(orderId.get()).one();
 
         AtomicReference<Map<String, Object>> msg = new AtomicReference<>();
-        mainTransaction().executeWithoutResult(tsM ->
+        jmsTransaction().executeWithoutResult(tsM ->
                 msg.set((Map<String, Object>) jmsTemplate.receiveAndConvert())
         );
 
@@ -77,9 +79,11 @@ public class GlobalTxTest {
                 ordersTransaction().executeWithoutResult(tsO -> {
                     orderId.set(createOrder(customer).getId());
                 });
-                Map<String, Object> msg = new HashMap<>();
-                msg.put("testMsg", testMsg);
-                jmsTemplate.convertAndSend(msg);
+                jmsTransaction().executeWithoutResult(tsJms -> {
+                    Map<String, Object> msg = new HashMap<>();
+                    msg.put("testMsg", testMsg);
+                    jmsTemplate.convertAndSend(msg);
+                });
                 throw new RuntimeException("Transaction rollback exception");
             });
         } catch (RuntimeException e) {
@@ -87,7 +91,7 @@ public class GlobalTxTest {
         }
 
         AtomicReference<Map<String, Object>> msg = new AtomicReference<>();
-        mainTransaction().executeWithoutResult(tsM ->
+        jmsTransaction().executeWithoutResult(tsM ->
                 msg.set((Map<String, Object>) jmsTemplate.receiveAndConvert())
         );
 
@@ -108,6 +112,12 @@ public class GlobalTxTest {
 
     TransactionTemplate ordersTransaction() {
         TransactionTemplate template = new TransactionTemplate(locator.getTransactionManager("orders"));
+        template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        return template;
+    }
+
+    TransactionTemplate jmsTransaction() {
+        TransactionTemplate template = new TransactionTemplate(locator.getTransactionManager("jms"));
         template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
         return template;
     }
