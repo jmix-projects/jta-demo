@@ -44,10 +44,15 @@ Note that this bean must have a name for each datastore you want to use with it 
 ## Set up data stores
 
 - Create DataSource bean using XADataSource for target database and AtomikosDataSourceBean
-```
+``` 
+    @Bean
+    @ConfigurationProperties("orders.datasource")
+    DataSourceProperties ordersDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+    
     @Bean(name = "ordersDataSource")
-    @Qualifier("orders")
-    public DataSource ordersDataSource() {
+    public DataSource ordersDataSource(@Qualifier("ordersDataSourceProperties") DataSourceProperties dataSourceProperties) {
         PGXADataSource ds = new PGXADataSource();
         ds.setURL(dsConfig.getJdbcUrl());
         ds.setUser(dsConfig.getUsername());
@@ -64,7 +69,7 @@ Note that this bean must have a name for each datastore you want to use with it 
 ```
     @Bean
     @DependsOn({"ordersTransactionManager", "ordersDataSource"})
-    public LocalContainerEntityManagerFactoryBean ordersEntityManagerFactory(@Qualifier("orders") DataSource ordersDataSource,
+    public LocalContainerEntityManagerFactoryBean ordersEntityManagerFactory(@Qualifier("ordersDataSource") DataSource ordersDataSource,
                                                                              JpaVendorAdapter jpaVendorAdapter,
                                                                              DbmsSpecifics dbmsSpecifics,
                                                                              JmixModules jmixModules,
@@ -78,11 +83,23 @@ Note that this bean must have a name for each datastore you want to use with it 
     }
 ```
 
-## Notes
-There are 3 data stores in the project. "Main" data store and "orders" store belong to global transaction manager. "Main" store manages `Customer` and `User` entities. Data store "orders" manages "Order" entity. Third data store "local" does not belong to the global transaction manager and manages `LocalEntity` entity.
+## Set up database
+Note that database you are using must be able to work with `XADataSource`.
+For example, if you use `Postgres` you should set `max_prepared_transactions` property. Use the following steps:
+- Stop `Postgres` service.
+- Set `max_prepared_transactions` property to a nonzero value (e.g. 5000) in the `postgresql.conf` file.
+- Start `Postgres` service
 
-Note that database you are using must be able to work with `XADataSource`. For example, if you use `Postgres` you should set `max_prepared_transactions` property to a nonzero value.
+## Sample project description
+There are 3 data stores in the project. 
+- "Main" data store and "orders" store belong to global transaction manager. 
+  "Main" store manages `Customer` and `User` entities. 
+- Data store "orders" manages "Order" entity. 
+- Third data store "local" does not belong to the global transaction manager and manages `LocalEntity` entity.
 
-Project also has a basic test with successful transaction and rollback. To run it, it is better to set connection parameters to test databases in the test app properties, since some tables are cleared during tests.
+Project also has a basic test with successful transaction and rollback: `com.company.jtatest.GlobalTxTest` 
+To run it, it is better to set connection parameters to test databases in the test app properties, since some tables are cleared during tests.
 
-There are two special buttons on the Order browser screen. The "Create test order and customer" button creates programmatically the Order entity, Customer entity and LocalEntity entity then saves them in same SaveContext via dataManager. Button "Invoke Distributed Transaction Service" executes the CompositeJTAService service for selected in table Order instance and associated Customer, where you can see an example of declarative use of transactions.
+There are two special buttons on the Order browser screen:
+- The "Create test order and customer" button creates programmatically the Order entity, Customer entity and LocalEntity entity then saves them in same SaveContext via dataManager. 
+- Button "Invoke Distributed Transaction Service" executes the CompositeJTAService service for selected in table Order instance and associated Customer, where you can see an example of declarative use of transactions.
