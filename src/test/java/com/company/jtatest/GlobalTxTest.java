@@ -4,7 +4,7 @@ import com.company.jtatest.entity.customers.Customer;
 import com.company.jtatest.entity.orders.Order;
 import io.jmix.core.Metadata;
 import io.jmix.core.Stores;
-import io.jmix.core.UnsafeDataManager;
+import io.jmix.core.UnconstrainedDataManager;
 import io.jmix.data.StoreAwareLocator;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -26,7 +26,7 @@ public class GlobalTxTest {
     @Autowired
     Metadata metadata;
     @Autowired
-    UnsafeDataManager dataManager;
+    UnconstrainedDataManager dataManager;
 
     @Test
     void successfulCommitTest() {

@@ -6,7 +6,7 @@
         <instance id="orderDc"
                   class="com.company.jtatest.entity.orders.Order">
             <fetchPlan extends="_base">
-                <property name="id"/>
+                <property name="customer" fetchPlan="_base"/>
             </fetchPlan>
             <loader/>
         </instance>
