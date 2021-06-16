@@ -4,7 +4,7 @@ import io.jmix.core.CoreProperties;
 import io.jmix.core.MessageTools;
 import io.jmix.core.Messages;
 import io.jmix.securityui.authentication.AuthDetails;
-import io.jmix.securityui.authentication.LoginScreenAuthenticationSupport;
+import io.jmix.securityui.authentication.LoginScreenSupport;
 import io.jmix.ui.Notifications;
 import io.jmix.ui.action.Action;
 import io.jmix.ui.component.CheckBox;
@@ -44,7 +44,7 @@ public class LoginScreen extends Screen {
     private Messages messages;
 
     @Autowired
-    private LoginScreenAuthenticationSupport authenticationSupport;
+    private LoginScreenSupport authenticationSupport;
 
     @Autowired
     private CoreProperties coreProperties;
